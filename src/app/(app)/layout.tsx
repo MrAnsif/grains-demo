@@ -11,6 +11,9 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import React from 'react'
 import './globals.css'
+// import Script from 'next/script'
+
+import { defaultTheme, themeLocalStorageKey } from '@/providers/Theme/shared'
 
 /* const { SITE_NAME, TWITTER_CREATOR, TWITTER_SITE } = process.env
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -47,10 +50,46 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <InitTheme />
-        <link href="/favicon.ico" rel="icon" sizes="32x32" />
-        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
-      </head>
+  <script
+    id="theme-script"
+    suppressHydrationWarning
+    dangerouslySetInnerHTML={{
+      __html: `
+(function () {
+  function getImplicitPreference() {
+    var mediaQuery = '(prefers-color-scheme: dark)'
+    var mql = window.matchMedia(mediaQuery)
+    var hasImplicitPreference = typeof mql.matches === 'boolean'
+    if (hasImplicitPreference) {
+      return mql.matches ? 'dark' : 'light'
+    }
+    return null
+  }
+
+  function themeIsValid(theme) {
+    return theme === 'light' || theme === 'dark'
+  }
+
+  var themeToSet = '${defaultTheme}'
+  var preference = window.localStorage.getItem('${themeLocalStorageKey}')
+
+  if (themeIsValid(preference)) {
+    themeToSet = preference
+  } else {
+    var implicitPreference = getImplicitPreference()
+    if (implicitPreference) {
+      themeToSet = implicitPreference
+    }
+  }
+
+  document.documentElement.setAttribute('data-theme', themeToSet)
+})();
+      `,
+    }}
+  />
+  <link href="/favicon.ico" rel="icon" sizes="32x32" />
+  <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+</head>
       <body>
         <Providers>
           <AdminBar />
